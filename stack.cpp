@@ -130,14 +130,14 @@ void Compile(char* c, int len){
 }
 
 bool is_operand(char a){
-    if (a == '+' || a == '-' || a == '*' || a == '/'){
-        return true;
-    }
-    return false;
+    return (a == '+' || a == '-' || a == '*' || a == '/');
 }
 
-bool bodmas(char a, char b){
+bool bodmas(char a, char b){ // returns false if we are supposed to solve the file character first
     char o[4] = {'/','*','+','-'};
+    if (a == '-' && b == '+') {
+        return true;
+    }
     int a1, b1;
     for (int i = 0;i < 4; i++ ){
         if (o[i] == a){
@@ -152,10 +152,8 @@ bool bodmas(char a, char b){
         }
     }
 
-    if (a1 > b1 || a1 == b1){
-        return false;
-    }
-    return true;
+
+    return a1 <= b1;
 }
 
 
@@ -172,11 +170,16 @@ void postfix(char* problem){
                   if (bodmas(problem[i],operations.Top())){
                     operations.push(problem[i]);
                   }else{
-                      while (!bodmas(problem[i],stark.Top()) && !operations.isempty()){
-                        stark.push(operations.Top());
-                        operations.pop();
+                      while (!operations.isempty()){
+                            if (!bodmas(problem[i], operations.Top())){
+                                stark.push(operations.Top());
+                                operations.pop();
+                            } else {
+                                break;
+                            }
                       }
                       operations.push(problem[i]);
+
                   }
         }else{
             if (problem[i]=='('){
@@ -210,6 +213,5 @@ void postfix(char* problem){
 
 int main()
 {
-postfix("A-B+C/D*E");
-
+    postfix("A+(B+C)-D/E*F");
 }
